@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option java_package = "org.example.grpc.analytics";
+option java_multiple_files = true;service ProfileAnalyticsService {
+  rpc AnalyzeProfile (AnalyzeProfileRequest) returns (AnalyzeProfileResponse);
+}
+
+message AnalyzeProfileRequest {
+  int64 profile_id = 1;
+  string nickname = 2;
+  int32 age = 3;
+  string preferred_language = 4;
+}
+
+message AnalyzeProfileResponse {
+  int64 profile_id = 1;
+  double matching_score = 2;
+  string category_level = 3;
+}
