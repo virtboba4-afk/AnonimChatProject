@@ -1,6 +1,7 @@
 package org.example.rest.service;
 
 import org.example.contract.dto.*;
+import org.example.rest.event.ProfileEventPublisher;
 import org.example.rest.exception.ResourceNotFoundException;
 import org.example.rest.storage.InMemoryStorage;
 import org.springframework.stereotype.Service;
@@ -12,9 +13,11 @@ import java.util.stream.Collectors;
 public class ProfileService {
 
     private final InMemoryStorage storage;
+    private final ProfileEventPublisher eventPublisher;
 
-    public ProfileService(InMemoryStorage storage) {
+    public ProfileService(InMemoryStorage storage,ProfileEventPublisher eventPublisher) {
         this.storage = storage;
+        this.eventPublisher = eventPublisher;
     }
 
     public ProfileResponse findById(Long id) {
@@ -31,13 +34,13 @@ public class ProfileService {
                 .nickname(request.nickname())
                 .age(request.age())
                 .preferredLanguage(request.preferredLanguage())
-                .matchingScore(100.0) // Дефолтный скор для новых юзеров рулетки
+                .matchingScore(100.0)
                 .build();
         storage.profiles.put(id, profile);
+        eventPublisher.publishProfileCreated(profile);
         return profile;
     }
 
-    // PUT: Полное обновление
     public ProfileResponse update(Long id, UpdateProfileRequest request) {
         findById(id);
         ProfileResponse updated = ProfileResponse.builder()
@@ -51,7 +54,6 @@ public class ProfileService {
         return updated;
     }
 
-    // PATCH: Частичное обновление
     public ProfileResponse patch(Long id, PatchProfileRequest request) {
         ProfileResponse existing = findById(id);
         ProfileResponse updated = ProfileResponse.builder()

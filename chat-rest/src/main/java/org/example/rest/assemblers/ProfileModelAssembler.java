@@ -1,6 +1,6 @@
 package org.example.rest.assemblers;
 
-import org.example.rest.endpoints.ProfileController;
+import org.example.rest.controllers.ProfileController;
 import org.example.contract.dto.ProfileResponse;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;

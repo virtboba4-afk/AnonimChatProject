@@ -6,9 +6,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = "org.example") // Скан всей иерархии org.example (и contract, и rest)
-public class Main {
+@ComponentScan(basePackages = "org.example")
+public class RestApplication {
     public static void main(String[] args) {
-        SpringApplication.run(Main.class, args);
+        SpringApplication.run(RestApplication.class, args);
     }
 }

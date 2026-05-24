@@ -22,5 +22,7 @@
     <modules>
         <module>chat-api-contract</module>
         <module>chat-rest</module>
+        <module>chat-events-contract</module>
+        <module>chat-audit</module>
     </modules>
 </project>

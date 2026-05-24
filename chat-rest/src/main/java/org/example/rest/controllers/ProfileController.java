@@ -1,4 +1,4 @@
-package org.example.rest.endpoints;
+package org.example.rest.controllers;
 
 import org.example.contract.endpoints.ProfileApi;
 import org.example.rest.assemblers.ProfileModelAssembler;
