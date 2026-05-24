@@ -24,5 +24,8 @@
         <module>chat-rest</module>
         <module>chat-events-contract</module>
         <module>chat-audit</module>
+        <module>chat-grpc-contract</module>
+        <module>chat-grpc-analytics-server</module>
+        <module>chat-grpc-enrichment-client</module>
     </modules>
 </project>
