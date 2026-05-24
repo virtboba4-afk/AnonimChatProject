@@ -4,6 +4,7 @@ package org.example.rest.exception;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.example.contract.dto.ErrorResponse;
+import org.example.contract.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

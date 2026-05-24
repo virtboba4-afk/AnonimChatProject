@@ -13,13 +13,15 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.exchange.name:chat.events.exchange}")
     private String exchangeName;
 
-    @Bean
-    public TopicExchange chatExchange() {
-        return new TopicExchange(exchangeName);
-    }
-
+    // Настраиваем отправку в формате JSON
     @Bean
     public MessageConverter jsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
+    }
+
+    // Создаем только точку обмена (Exchange)
+    @Bean
+    public TopicExchange chatExchange() {
+        return new TopicExchange(exchangeName);
     }
 }

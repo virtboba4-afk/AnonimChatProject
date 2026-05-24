@@ -1,0 +1,24 @@
+type Query {
+    profile(id: ID!): Profile
+    allProfiles(page: Int = 0, size: Int = 20): [Profile!]!
+}
+
+type Mutation {
+    createProfile(input: ProfileInput!): Profile!
+    updateProfile(id: ID!, input: ProfileInput!): Profile!
+    deleteProfile(id: ID!): Boolean
+}
+
+type Profile {
+    id: ID!
+    nickname: String!
+    age: Int!
+    preferredLanguage: String!
+    matchingScore: Float!
+}
+
+input ProfileInput {
+    nickname: String!
+    age: Int!
+    preferredLanguage: String!
+}

@@ -1,4 +1,4 @@
-package org.example.rest.exception;
+package org.example.contract.exception;
 
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String resourceName, Object resourceId) {

@@ -2,7 +2,7 @@ package org.example.rest.service;
 
 import org.example.contract.dto.*;
 import org.example.rest.event.ProfileEventPublisher;
-import org.example.rest.exception.ResourceNotFoundException;
+import org.example.contract.exception.ResourceNotFoundException;
 import org.example.rest.storage.InMemoryStorage;
 import org.springframework.stereotype.Service;
 

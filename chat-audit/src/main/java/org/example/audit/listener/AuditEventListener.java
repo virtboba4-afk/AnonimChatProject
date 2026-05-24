@@ -16,7 +16,8 @@ public class AuditEventListener {
         this.storage = storage;
     }
 
-    @RabbitListener(queues = "chat.audit.queue")
+    // Слушаем нашу стандартную очередь, используя профессорскую фабрику конфигураций
+    @RabbitListener(queues = "q.chat.audit.events", containerFactory = "rabbitListenerContainerFactory")
     public void handleProfileEvent(EventEnvelope<ProfilePayload> envelope) {
         AuditEntry entry = new AuditEntry(
                 envelope.metadata().eventId(),
