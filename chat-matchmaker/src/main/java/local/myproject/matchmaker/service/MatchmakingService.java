@@ -31,7 +31,7 @@ public class MatchmakingService {
 
     public void addPlayerToQueue(ProfilePayload profile) {
         waitingRoom.add(profile);
-        System.out.println("⏳ " + profile.nickname() + " добавлен в очередь. Всего ждет: " + waitingRoom.size());
+        System.out.println("[поиск]" +profile.nickname() + " добавлен в очередь. Всего ждет: " + waitingRoom.size());
     }
 
     @Scheduled(fixedRate = 1000)
@@ -40,7 +40,7 @@ public class MatchmakingService {
             ProfilePayload user2 = waitingRoom.poll();
 
             String roomId = "room-" + UUID.randomUUID().toString().substring(0, 8);
-            System.out.println("НАЙДЕНА ПАРА: " + user1.nickname() + " 🤝 " + user2.nickname() + " (Комната: " + roomId + ")");
+            System.out.println(" пара: " + user1.nickname() + " и " + user2.nickname() + " (Комната: " + roomId + ")");
 
 
             EventMetadata meta = new EventMetadata(UUID.randomUUID().toString(), Instant.now(), "matchmaker", "match.found");

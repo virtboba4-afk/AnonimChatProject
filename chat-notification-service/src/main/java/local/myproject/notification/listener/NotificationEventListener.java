@@ -1,8 +1,5 @@
 package local.myproject.notification.listener;
 
-
-
-
 import org.events.EventEnvelope;
 import org.events.MatchFoundPayload;
 import org.events.ProfilePayload;
@@ -40,7 +37,6 @@ public class NotificationEventListener {
         return BindingBuilder.bind(profileNotificationQueue).to(chatExchange).with("chat.profile.#");
     }
 
-
     @Bean
     public Queue matchNotificationQueue() {
         return QueueBuilder.durable("chat.notification.match.queue").build();
@@ -51,17 +47,26 @@ public class NotificationEventListener {
         return BindingBuilder.bind(matchNotificationQueue).to(chatExchange).with("chat.match.#");
     }
 
+
     @Bean
     public MessageConverter jsonMessageConverter() {
-        return new Jackson2JsonMessageConverter();
+        Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter();
+
+
+        org.springframework.amqp.support.converter.DefaultJackson2JavaTypeMapper typeMapper =
+                new org.springframework.amqp.support.converter.DefaultJackson2JavaTypeMapper();
+        typeMapper.setTrustedPackages("*");
+
+        converter.setJavaTypeMapper(typeMapper);
+        return converter;
     }
-
-
 
 
 
     @RabbitListener(queues = "chat.notification.profile.queue")
     public void handleProfileEvent(EventEnvelope<ProfilePayload> event) {
+        System.out.println("[ГЛОБАЛЬНО] Поймано событие: " + event.metadata().eventType());
+
         String eventType = event.metadata().eventType();
         String nickname = event.payload().nickname();
 
@@ -74,9 +79,11 @@ public class NotificationEventListener {
 
     @RabbitListener(queues = "chat.notification.match.queue")
     public void handleMatchFound(EventEnvelope<MatchFoundPayload> event) {
+        System.out.println(" [ПРИВАТНО] Матчмейкер прислал пару Комната: " + event.payload().roomId());
+
         if ("match.found".equals(event.metadata().eventType())) {
             MatchFoundPayload match = event.payload();
-            String msg = "{\"type\": \"MATCH_READY\", \"message\": \"⚡ Собеседник найден! Вы вдвоем переведены в " + match.roomId() + "\"}";
+            String msg = "{\"type\": \"MATCH_READY\", \"message\": \" Собеседник найден, ваша room " + match.roomId() + "\"}";
 
             webSocketHandler.sendToUser(match.user1Id(), msg);
             webSocketHandler.sendToUser(match.user2Id(), msg);
