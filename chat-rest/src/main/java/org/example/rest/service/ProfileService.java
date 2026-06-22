@@ -80,4 +80,10 @@ public class ProfileService {
         List<ProfileResponse> content = (from >= totalElements) ? List.of() : all.subList(from, to);
         return new PagedResponse<>(content, page, size, totalElements, totalPages, page >= totalPages - 1);
     }
+
+    public void startSearch(Long id) {
+        ProfileResponse profile = findById(id);
+        eventPublisher.publishSearchStarted(profile);
+        System.out.println("Пользователь " + profile.getNickname() + " начал поиск собеседника!");
+    }
 }

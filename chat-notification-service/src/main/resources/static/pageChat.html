@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Global Chat Roulette Notifications</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f9; padding: 20px; }
+        #status { font-weight: bold; margin-bottom: 20px; padding: 10px; border-radius: 5px; }
+        .connected { background: #d4edda; color: #155724; }
+        .disconnected { background: #f8d7da; color: #721c24; }
+        .notification { background: white; padding: 15px; margin-bottom: 10px; border-left: 5px solid #007bff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .controls { margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input, button { padding: 8px; margin-left: 10px; font-size: 16px; }
+        button { cursor: pointer; background: #007bff; color: white; border: none; border-radius: 3px; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+<h1>Чат-рулетка</h1>
+
+<div class="controls">
+    <label>Твой ID профиля (введи цифру):
+        <input type="number" id="myId" value="1" min="1">
+    </label>
+    <button onclick="connect()">Подключиться к сокету</button>
+</div>
+
+<div id="status" class="disconnected"Отключено</div>
+<div id="notifications"></div>
+
+<script>
+    let ws;
+    let retryDelay = 1000;
+    let currentProfileId = null;
+
+    function connect() {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            return;
+        }
+
+        currentProfileId = document.getElementById('myId').value;
+        ws = new WebSocket("ws://localhost:8084/ws/notifications");
+
+        ws.onopen = function() {
+            document.getElementById('status').className = 'connected';
+            document.getElementById('status').innerText = 'Подключено (ID: ' + currentProfileId + ')';
+            retryDelay = 1000; // Сбрасываем задержку после успешного входа
+
+            ws.send(JSON.stringify({
+                type: 'AUTH',
+                profileId: parseInt(currentProfileId)
+            }));
+        };
+
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            const notifDiv = document.createElement('div');
+            notifDiv.className = 'notification';
+            notifDiv.innerText = `[${new Date().toLocaleTimeString()}] ${data.message}`;
+
+            const container = document.getElementById('notifications');
+            container.insertBefore(notifDiv, container.firstChild);
+        };
+
+        ws.onclose = function() {
+            document.getElementById('status').className = 'disconnected';
+            document.getElementById('status').innerText = `🔴 Соединение потеряно. Переподключение через ${retryDelay/1000} сек...`;
+
+            setTimeout(connect, retryDelay);
+            retryDelay = Math.min(retryDelay * 2, 30000);
+        };
+    }
+</script>
+</body>
+</html>

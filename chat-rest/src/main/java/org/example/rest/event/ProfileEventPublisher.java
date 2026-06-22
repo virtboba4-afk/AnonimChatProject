@@ -32,6 +32,8 @@ public class ProfileEventPublisher {
                 "profile.created"
         );
 
+
+
         ProfilePayload payload = new ProfilePayload(
                 profile.getId(),
                 profile.getNickname(),
@@ -42,5 +44,15 @@ public class ProfileEventPublisher {
         EventEnvelope<ProfilePayload> envelope = new EventEnvelope<>(metadata, payload);
 
         rabbitTemplate.convertAndSend(exchangeName, "chat.profile.created", envelope);
+    }
+
+    public void publishSearchStarted(ProfileResponse profile) {
+        EventMetadata metadata = new EventMetadata(
+                UUID.randomUUID().toString(), Instant.now(), "chat-rest", "profile.search.started"
+        );
+        ProfilePayload payload = new ProfilePayload(
+                profile.getId(), profile.getNickname(), profile.getPreferredLanguage(), profile.getAge()
+        );
+        rabbitTemplate.convertAndSend(exchangeName, "chat.profile.search.started", new EventEnvelope<>(metadata, payload));
     }
 }

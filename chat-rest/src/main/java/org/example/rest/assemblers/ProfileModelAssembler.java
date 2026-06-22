@@ -14,9 +14,9 @@ public class ProfileModelAssembler implements RepresentationModelAssembler<Profi
 
     @Override
     public EntityModel<ProfileResponse> toModel(ProfileResponse profile) {
+
         return EntityModel.of(profile,
-                linkTo(methodOn(ProfileController.class).getProfileById(profile.getId())).withSelfRel(),
-                linkTo(methodOn(ProfileController.class).getAllProfiles(0, 20)).withRel("collection")
+                linkTo(methodOn(ProfileController.class).getProfileById(profile.getId())).withSelfRel()
         );
     }
 }

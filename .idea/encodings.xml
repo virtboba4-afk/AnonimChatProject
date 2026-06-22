@@ -9,6 +9,8 @@
     <file url="file://$PROJECT_DIR$/chat-grpc-contract/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/chat-grpc-enrichment-clien/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/chat-grpc-enrichment-client/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/chat-matchmaker/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/chat-notification-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/chat-rest/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/chat-rest/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />

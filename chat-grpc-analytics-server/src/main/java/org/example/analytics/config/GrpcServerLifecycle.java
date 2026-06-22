@@ -6,12 +6,13 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.example.analytics.service.ProfileAnalyticsServiceImpl;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 @Component
-public class GrpcServerLifecycle {
+public class GrpcServerLifecycle implements CommandLineRunner {
 
     private Server server;
     private final ProfileAnalyticsServiceImpl analyticsService;
@@ -30,6 +31,14 @@ public class GrpcServerLifecycle {
                 .build()
                 .start();
         System.out.println(" [gRPC SERVER] Запущен и слушает порт: " + port);
+    }
+
+
+    @Override
+    public void run(String... args) throws Exception {
+        if (server != null) {
+            server.awaitTermination();
+        }
     }
 
     @PreDestroy

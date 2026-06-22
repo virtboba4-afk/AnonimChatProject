@@ -63,4 +63,9 @@ public class ProfileController implements ProfileApi {
                 paged.last()
         );
     }
+    @org.springframework.web.bind.annotation.PostMapping("/{id}/search")
+    public ResponseEntity<String> startSearch(@org.springframework.web.bind.annotation.PathVariable Long id) {
+        profileService.startSearch(id);
+        return ResponseEntity.ok("Поиск собеседника запущен...");
+    }
 }
