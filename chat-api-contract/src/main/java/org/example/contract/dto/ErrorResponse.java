@@ -7,7 +7,7 @@ import java.time.Instant;
 import java.util.List;
 
 
-@JsonInclude(JsonInclude.Include.NON_NULL) // Скрывает поля со значением null из итогового JSON
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Стандартный ответ об ошибке (RFC 7807 Problem Details)")
 public record ErrorResponse(
 

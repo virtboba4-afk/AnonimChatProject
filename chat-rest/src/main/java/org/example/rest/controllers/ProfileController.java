@@ -6,6 +6,8 @@ import org.example.contract.dto.*;
 import org.example.rest.service.ProfileService;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -63,9 +65,9 @@ public class ProfileController implements ProfileApi {
                 paged.last()
         );
     }
-    @org.springframework.web.bind.annotation.PostMapping("/{id}/search")
-    public ResponseEntity<String> startSearch(@org.springframework.web.bind.annotation.PathVariable Long id) {
+    @PostMapping("/{id}/search")
+    public ResponseEntity<String> startSearch(@PathVariable Long id) {
         profileService.startSearch(id);
-        return ResponseEntity.ok("Поиск собеседника запущен...");
+        return ResponseEntity.ok("Поиск собеседника запущен");
     }
 }

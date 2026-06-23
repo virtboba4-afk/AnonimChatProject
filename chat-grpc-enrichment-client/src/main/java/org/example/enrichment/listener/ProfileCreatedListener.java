@@ -24,7 +24,7 @@ public class ProfileCreatedListener {
     @RabbitListener(queues = "chat.enrichment.queue")
     public void handleProfileCreated(EventEnvelope<ProfilePayload> event) {
         ProfilePayload payload = event.payload();
-        System.out.println("📥 [ОБОГАЩЕНИЕ] Поймано событие создания профиля: " + payload.nickname());
+        System.out.println("[ОБОГАЩЕНИЕ] Поймано событие создания профиля: " + payload.nickname());
 
         AnalyzeProfileRequest request = AnalyzeProfileRequest.newBuilder()
                 .setProfileId(payload.profileId())
