@@ -86,4 +86,6 @@ public class ProfileService {
         eventPublisher.publishSearchStarted(profile);
         System.out.println("Пользователь " + profile.getNickname() + " начал поиск собеседника!");
     }
+
+
 }

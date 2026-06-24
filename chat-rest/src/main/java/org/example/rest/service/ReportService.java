@@ -40,4 +40,21 @@ public class ReportService {
     public List<ReportResponse> getAllReports() {
         return new ArrayList<>(reports.values());
     }
+
+    public void updateReportStatus(Long reportId, String newStatus) {
+        ReportResponse report = reports.get(reportId);
+        if (report != null) {
+
+            ReportResponse updated = new ReportResponse(
+                    report.id(), report.reporterId(), report.reportedId(),
+                    report.reason(), newStatus, report.createdAt()
+            );
+            reports.put(reportId, updated);
+        }
+    }
+
+    public void blockUser(Long userId) {
+
+        System.out.println(" Администратор заблокировал пользователя с ID: " + userId);
+    }
 }

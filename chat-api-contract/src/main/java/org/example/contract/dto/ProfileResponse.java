@@ -18,4 +18,5 @@ public class ProfileResponse extends RepresentationModel<ProfileResponse> {
     private final Integer age;
     private final String preferredLanguage;
     private final Double matchingScore;
+    private final boolean canSearch;
 }

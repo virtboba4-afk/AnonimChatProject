@@ -31,4 +31,14 @@ public class ReportController {
     public List<ReportResponse> getAllReports() {
         return reportService.getAllReports();
     }
+    @PatchMapping("/{id}/status")
+    public void updateStatus(@PathVariable Long id, @RequestParam String status) {
+        reportService.updateReportStatus(id, status);
+    }
+
+    @DeleteMapping("/block/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void blockUser(@PathVariable Long userId) {
+        reportService.blockUser(userId);
+    }
 }
