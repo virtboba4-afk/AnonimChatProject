@@ -1,0 +1,20 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: chat-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: wantitt
+      RABBITMQ_DEFAULT_PASS: wanittt
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: chat-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: chat_user
+      POSTGRES_PASSWORD: qwerty
+      POSTGRES_DB: chat_db
