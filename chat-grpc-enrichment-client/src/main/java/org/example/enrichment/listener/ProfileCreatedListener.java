@@ -27,7 +27,7 @@ public class ProfileCreatedListener {
         System.out.println("[ОБОГАЩЕНИЕ] Поймано событие создания профиля: " + payload.nickname());
 
         AnalyzeProfileRequest request = AnalyzeProfileRequest.newBuilder()
-                .setProfileId(payload.profileId())
+                .setProfileId(payload.profileId().toString())
                 .setAge(payload.age())
                 .setNickname(payload.nickname())
                 .setPreferredLanguage(payload.preferredLanguage())

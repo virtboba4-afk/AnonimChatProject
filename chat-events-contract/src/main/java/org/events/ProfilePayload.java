@@ -1,8 +1,10 @@
 package org.events;
 
 
+import java.util.UUID;
+
 public record ProfilePayload(
-        Long profileId,
+        UUID profileId,
         String nickname,
         String preferredLanguage,
         Integer age

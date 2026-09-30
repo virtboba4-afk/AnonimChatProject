@@ -1,8 +1,10 @@
 package org.events;
 
 
+import java.util.UUID;
+
 public record MatchFoundPayload(
-        Long user1Id,
-        Long user2Id,
+        UUID user1Id,
+        UUID user2Id,
         String roomId
 ) {}

@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/reports")
@@ -32,13 +33,13 @@ public class ReportController {
         return reportService.getAllReports();
     }
     @PatchMapping("/{id}/status")
-    public void updateStatus(@PathVariable Long id, @RequestParam String status) {
+    public void updateStatus(@PathVariable UUID id, @RequestParam String status) {
         reportService.updateReportStatus(id, status);
     }
 
     @DeleteMapping("/block/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void blockUser(@PathVariable Long userId) {
+    public void blockUser(@PathVariable UUID userId) {
         reportService.blockUser(userId);
     }
 }

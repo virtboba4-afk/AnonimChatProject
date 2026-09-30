@@ -1,11 +1,12 @@
 package org.example.audit.model;
 
 import java.time.Instant;
+import java.util.UUID;
 
 public record AuditEntry(
         String eventId,
         String eventType,
         Instant timestamp,
-        Long profileId,
+        UUID profileId,
         String nickname
 ) {}

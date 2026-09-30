@@ -1,91 +1,136 @@
 package org.example.rest.service;
 
 import org.example.contract.dto.*;
+import org.example.rest.entity.ProfileEntity;
 import org.example.rest.event.ProfileEventPublisher;
 import org.example.contract.exception.ResourceNotFoundException;
-import org.example.rest.storage.InMemoryStorage;
+import org.example.rest.repository.ProfileRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class ProfileService {
 
-    private final InMemoryStorage storage;
+    private final ProfileRepository profileRepository;
     private final ProfileEventPublisher eventPublisher;
 
-    public ProfileService(InMemoryStorage storage,ProfileEventPublisher eventPublisher) {
-        this.storage = storage;
+    public ProfileService(ProfileRepository profileRepository, ProfileEventPublisher eventPublisher) {
+        this.profileRepository = profileRepository;
         this.eventPublisher = eventPublisher;
     }
 
-    public ProfileResponse findById(Long id) {
-        if (!storage.profiles.containsKey(id)) {
-            throw new ResourceNotFoundException("Profile", id);
-        }
-        return storage.profiles.get(id);
+
+    @Transactional(readOnly = true)
+    public ProfileResponse findById(UUID id) {
+        return toDto(findEntityById(id));
     }
 
+
+    @Transactional
     public ProfileResponse create(ProfileRequest request) {
-        long id = storage.profileSequence.incrementAndGet();
-        ProfileResponse profile = ProfileResponse.builder()
-                .id(id)
-                .nickname(request.nickname())
-                .age(request.age())
-                .preferredLanguage(request.preferredLanguage())
-                .matchingScore(100.0)
-                .build();
-        storage.profiles.put(id, profile);
+
+        if (profileRepository.existsByNickname(request.nickname())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Профиль с таким никнеймом уже существует");
+        }
+
+        ProfileEntity entity = new ProfileEntity();
+        entity.setId(UUID.randomUUID());
+        entity.setNickname(request.nickname());
+        entity.setAge(request.age());
+        entity.setPreferredLanguage(request.preferredLanguage());
+        entity.setMatchingScore(100.0);
+        entity.setCanSearch(true);
+
+        ProfileEntity saved = profileRepository.save(entity);
+        ProfileResponse profile = toDto(saved);
+
         eventPublisher.publishProfileCreated(profile);
         return profile;
     }
 
-    public ProfileResponse update(Long id, UpdateProfileRequest request) {
-        findById(id);
-        ProfileResponse updated = ProfileResponse.builder()
-                .id(id)
-                .nickname(request.nickname())
-                .age(request.age())
-                .preferredLanguage(request.preferredLanguage())
-                .matchingScore(storage.profiles.get(id).getMatchingScore())
-                .build();
-        storage.profiles.put(id, updated);
-        return updated;
+    @Transactional
+    public ProfileResponse update(UUID id, UpdateProfileRequest request) {
+        ProfileEntity entity = findEntityById(id);
+
+        entity.setNickname(request.nickname());
+        entity.setAge(request.age());
+        entity.setPreferredLanguage(request.preferredLanguage());
+
+        ProfileEntity saved = profileRepository.save(entity);
+        return toDto(saved);
     }
 
-    public ProfileResponse patch(Long id, PatchProfileRequest request) {
-        ProfileResponse existing = findById(id);
-        ProfileResponse updated = ProfileResponse.builder()
-                .id(id)
-                .nickname(request.nickname() != null ? request.nickname() : existing.getNickname())
-                .age(request.age() != null ? request.age() : existing.getAge())
-                .preferredLanguage(request.preferredLanguage() != null ? request.preferredLanguage() : existing.getPreferredLanguage())
-                .matchingScore(existing.getMatchingScore())
-                .build();
-        storage.profiles.put(id, updated);
-        return updated;
+    @Transactional
+    public ProfileResponse patch(UUID id, PatchProfileRequest request) {
+        ProfileEntity entity = findEntityById(id);
+
+        if (request.nickname() != null) entity.setNickname(request.nickname());
+        if (request.age() != null) entity.setAge(request.age());
+        if (request.preferredLanguage() != null) entity.setPreferredLanguage(request.preferredLanguage());
+
+        ProfileEntity saved = profileRepository.save(entity);
+        return toDto(saved);
     }
 
+    @Transactional(readOnly = true)
     public PagedResponse<ProfileResponse> findAll(int page, int size) {
-        List<ProfileResponse> all = storage.profiles.values().stream()
-                .sorted((p1, p2) -> p1.getId().compareTo(p2.getId()))
+
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id"));
+        Page<ProfileEntity> entityPage = profileRepository.findAll(pageRequest);
+
+        List<ProfileResponse> content = entityPage.getContent().stream()
+                .map(this::toDto)
                 .collect(Collectors.toList());
 
-        int totalElements = all.size();
-        int totalPages = size > 0 ? (int) Math.ceil((double) totalElements / size) : 1;
-        int from = page * size;
-        int to = Math.min(from + size, totalElements);
-
-        List<ProfileResponse> content = (from >= totalElements) ? List.of() : all.subList(from, to);
-        return new PagedResponse<>(content, page, size, totalElements, totalPages, page >= totalPages - 1);
+        return new PagedResponse<>(
+                content,
+                page,
+                size,
+                (int) entityPage.getTotalElements(),
+                entityPage.getTotalPages(),
+                entityPage.isLast()
+        );
     }
 
-    public void startSearch(Long id) {
+    @Transactional(readOnly = true)
+    public void startSearch(UUID id) {
         ProfileResponse profile = findById(id);
         eventPublisher.publishSearchStarted(profile);
         System.out.println("Пользователь " + profile.getNickname() + " начал поиск собеседника!");
     }
 
+    @Transactional
+    public void blockUser(UUID profileId) {
+        ProfileEntity entity = findEntityById(profileId);
+        entity.setCanSearch(false);
+        profileRepository.save(entity);
+        System.out.println(" Профиль ID " + profileId + " заблокирован. Поиск запрещен.");
+    }
 
+
+    private ProfileEntity findEntityById(UUID id) {
+        return profileRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Profile", id));
+    }
+
+
+    private ProfileResponse toDto(ProfileEntity entity) {
+        return ProfileResponse.builder()
+                .id(entity.getId())
+                .nickname(entity.getNickname())
+                .age(entity.getAge())
+                .preferredLanguage(entity.getPreferredLanguage())
+                .matchingScore(entity.getMatchingScore())
+                .canSearch(entity.isCanSearch())
+                .build();
+    }
 }

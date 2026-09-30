@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -25,7 +26,7 @@ public class ProfileController implements ProfileApi {
     }
 
     @Override
-    public EntityModel<ProfileResponse> getProfileById(Long id) {
+    public EntityModel<ProfileResponse> getProfileById(UUID id) {
         return assembler.toModel(profileService.findById(id));
     }
 
@@ -39,12 +40,12 @@ public class ProfileController implements ProfileApi {
     }
 
     @Override
-    public EntityModel<ProfileResponse> updateProfile(Long id, UpdateProfileRequest request) {
+    public EntityModel<ProfileResponse> updateProfile(UUID id, UpdateProfileRequest request) {
         return assembler.toModel(profileService.update(id, request));
     }
 
     @Override
-    public EntityModel<ProfileResponse> updateProfilePartially(Long id, PatchProfileRequest request) {
+    public EntityModel<ProfileResponse> updateProfilePartially(UUID id, PatchProfileRequest request) {
         return assembler.toModel(profileService.patch(id, request));
     }
 
@@ -66,7 +67,7 @@ public class ProfileController implements ProfileApi {
         );
     }
     @PostMapping("/{id}/search")
-    public ResponseEntity<String> startSearch(@PathVariable Long id) {
+    public ResponseEntity<String> startSearch(@PathVariable UUID id) {
         profileService.startSearch(id);
         return ResponseEntity.ok("Поиск собеседника запущен");
     }

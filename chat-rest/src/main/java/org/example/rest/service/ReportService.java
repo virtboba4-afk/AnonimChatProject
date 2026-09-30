@@ -2,59 +2,77 @@ package org.example.rest.service;
 
 import org.example.contract.dto.ReportRequest;
 import org.example.contract.dto.ReportResponse;
+import org.example.contract.exception.ResourceNotFoundException;
+import org.example.rest.entity.ReportEntity;
+import org.example.rest.repository.ReportRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ReportService {
-    private final Map<Long, ReportResponse> reports = new ConcurrentHashMap<>();
-    private final AtomicLong sequence = new AtomicLong(0);
 
-
+    private final ReportRepository reportRepository;
     private final ProfileService profileService;
 
-    public ReportService(ProfileService profileService) {
+    public ReportService(ReportRepository reportRepository, ProfileService profileService) {
+        this.reportRepository = reportRepository;
         this.profileService = profileService;
     }
 
+    @Transactional
     public ReportResponse createReport(ReportRequest request) {
 
         profileService.findById(request.reporterId());
         profileService.findById(request.reportedId());
 
-        long id = sequence.incrementAndGet();
-        ReportResponse report = new ReportResponse(
-                id, request.reporterId(), request.reportedId(),
-                request.reason(), "PENDING", Instant.now()
-        );
-        reports.put(id, report);
-        return report;
+        ReportEntity entity = new ReportEntity();
+        entity.setId(UUID.randomUUID());
+        entity.setReporterId(request.reporterId());
+        entity.setReportedId(request.reportedId());
+        entity.setReason(request.reason());
+        entity.setStatus("PENDING");
+        entity.setCreatedAt(Instant.now());
+
+        ReportEntity saved = reportRepository.save(entity);
+        return toDto(saved);
     }
 
+    @Transactional(readOnly = true)
     public List<ReportResponse> getAllReports() {
-        return new ArrayList<>(reports.values());
+        return reportRepository.findAll().stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 
-    public void updateReportStatus(Long reportId, String newStatus) {
-        ReportResponse report = reports.get(reportId);
-        if (report != null) {
+    @Transactional
+    public void updateReportStatus(UUID reportId, String newStatus) {
+        ReportEntity entity = reportRepository.findById(reportId)
+                .orElseThrow(() -> new ResourceNotFoundException("Report", reportId));
 
-            ReportResponse updated = new ReportResponse(
-                    report.id(), report.reporterId(), report.reportedId(),
-                    report.reason(), newStatus, report.createdAt()
-            );
-            reports.put(reportId, updated);
-        }
+        entity.setStatus(newStatus);
+        reportRepository.save(entity);
     }
 
-    public void blockUser(Long userId) {
+    @Transactional
+    public void blockUser(UUID userId) {
+        // Вызываем блокировку в ProfileService (меняет canSearch на false)
+        profileService.blockUser(userId);
+        System.out.println("🛡️ Администратор заблокировал пользователя с ID: " + userId);
+    }
 
-        System.out.println(" Администратор заблокировал пользователя с ID: " + userId);
+    private ReportResponse toDto(ReportEntity entity) {
+        return new ReportResponse(
+                entity.getId(),
+                entity.getReporterId(),
+                entity.getReportedId(),
+                entity.getReason(),
+                entity.getStatus(),
+                entity.getCreatedAt()
+        );
     }
 }

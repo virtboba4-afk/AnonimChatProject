@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
+import java.util.UUID;
+
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Tag(name = "Profiles", description = "Управление профилями для чат-рулетки")
@@ -15,7 +17,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public interface ProfileApi {
 
     @GetMapping("/{id}")
-    EntityModel<ProfileResponse> getProfileById(@PathVariable Long id);
+    EntityModel<ProfileResponse> getProfileById(@PathVariable UUID id);
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
@@ -23,12 +25,12 @@ public interface ProfileApi {
 
     @PutMapping(value = "/{id}", consumes = APPLICATION_JSON_VALUE)
     EntityModel<ProfileResponse> updateProfile(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody UpdateProfileRequest request);
 
     @PatchMapping(value = "/{id}", consumes = APPLICATION_JSON_VALUE)
     EntityModel<ProfileResponse> updateProfilePartially(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody PatchProfileRequest request);
 
     @GetMapping

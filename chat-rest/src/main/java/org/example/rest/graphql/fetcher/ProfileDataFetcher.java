@@ -11,6 +11,7 @@ import org.example.rest.graphql.types.ProfileInputGql;
 import org.example.rest.service.ProfileService;
 
 import java.util.List;
+import java.util.UUID;
 
 @DgsComponent
 public class ProfileDataFetcher {
@@ -23,7 +24,7 @@ public class ProfileDataFetcher {
 
     @DgsQuery
     public ProfileResponse profile(@InputArgument String id) {
-        return profileService.findById(Long.parseLong(id));
+        return profileService.findById(UUID.fromString(id));
     }
 
     @DgsQuery
@@ -40,6 +41,6 @@ public class ProfileDataFetcher {
     @DgsMutation
     public ProfileResponse updateProfile(@InputArgument String id, @InputArgument ProfileInputGql input) {
         UpdateProfileRequest request = new UpdateProfileRequest(input.nickname(), input.age(), input.preferredLanguage());
-        return profileService.update(Long.parseLong(id), request);
+        return profileService.update(UUID.fromString(id), request);
     }
 }

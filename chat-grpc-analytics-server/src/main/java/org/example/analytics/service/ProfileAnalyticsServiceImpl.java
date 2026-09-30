@@ -12,7 +12,8 @@ public class ProfileAnalyticsServiceImpl extends ProfileAnalyticsServiceGrpc.Pro
     @Override
     public void analyzeProfile(AnalyzeProfileRequest request, StreamObserver<AnalyzeProfileResponse> responseObserver) {
 
-        long profileId = request.getProfileId();
+
+        String profileId = request.getProfileId();
         int age = request.getAge();
         String lang = request.getPreferredLanguage();
 

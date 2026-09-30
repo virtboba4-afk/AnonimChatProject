@@ -12,19 +12,20 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class NotificationWebSocketHandler extends TextWebSocketHandler {
 
-    private final Map<Long, WebSocketSession> userSessions = new ConcurrentHashMap<>();
+    private final Map<UUID, WebSocketSession> userSessions = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         JsonNode json = objectMapper.readTree(message.getPayload());
         if (json.has("type") && "AUTH".equals(json.get("type").asText())) {
-            Long profileId = json.get("profileId").asLong();
+            UUID profileId = UUID.fromString(json.get("profileId").asText());
             userSessions.put(profileId, session);
             System.out.println(" Профиль " + profileId + " привязал свой браузер к сессии.");
             session.sendMessage(new TextMessage("{\"message\": \"Система готова к поиску собеседников!\"}"));
@@ -36,7 +37,7 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
         userSessions.values().remove(session);
     }
 
-    public void sendToUser(Long profileId, String message) {
+    public void sendToUser(UUID profileId, String message) {
         WebSocketSession session = userSessions.get(profileId);
         if (session != null && session.isOpen()) {
             try {
