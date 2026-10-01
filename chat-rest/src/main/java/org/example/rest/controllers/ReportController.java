@@ -6,6 +6,7 @@ import org.example.contract.dto.ReportRequest;
 import org.example.contract.dto.ReportResponse;
 import org.example.rest.service.ReportService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,6 +40,7 @@ public class ReportController {
 
     @DeleteMapping("/block/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ADMIN')")
     public void blockUser(@PathVariable UUID userId) {
         reportService.blockUser(userId);
     }
