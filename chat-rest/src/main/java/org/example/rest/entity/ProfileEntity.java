@@ -29,7 +29,6 @@ public class ProfileEntity {
     @Column(name = "can_search", nullable = false)
     private boolean canSearch = true;
 
-    // Оптимистичная блокировка по заданию
     @Version
     private Long version;
 
