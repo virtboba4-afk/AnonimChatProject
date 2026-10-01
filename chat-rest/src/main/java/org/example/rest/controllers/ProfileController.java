@@ -6,6 +6,8 @@ import org.example.contract.dto.*;
 import org.example.rest.service.ProfileService;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,6 +51,8 @@ public class ProfileController implements ProfileApi {
         return assembler.toModel(profileService.patch(id, request));
     }
 
+    @GetMapping
+    @PreAuthorize("hasRole('SERVICE')")
     @Override
     public PagedResponse<EntityModel<ProfileResponse>> getAllProfiles(int page, int size) {
         PagedResponse<ProfileResponse> paged = profileService.findAll(page, size);
