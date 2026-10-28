@@ -19,6 +19,12 @@ services:
       POSTGRES_PASSWORD: qwerty
       POSTGRES_DB: chat_db
 
+  redis:
+    image: redis:7-alpine
+    container_name: chat-redis
+    ports:
+      - "6379:6379"
+
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.1
     container_name: chat-keycloak

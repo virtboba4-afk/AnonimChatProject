@@ -52,7 +52,7 @@ public class ProfileController implements ProfileApi {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('SERVICE')")
+    @PreAuthorize("hasAnyRole('SERVICE', 'USER', 'ADMIN')")
     @Override
     public PagedResponse<EntityModel<ProfileResponse>> getAllProfiles(int page, int size) {
         PagedResponse<ProfileResponse> paged = profileService.findAll(page, size);

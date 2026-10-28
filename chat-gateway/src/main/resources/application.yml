@@ -1,0 +1,59 @@
+server:
+  port: 8088
+  reactive:
+    session:
+      timeout: 30m
+      cookie:
+        http-only: true
+        same-site: lax
+        # в production за HTTPS: SESSION_COOKIE_SECURE=true
+        secure: ${SESSION_COOKIE_SECURE:false}
+
+spring:
+  application:
+    name: chat-gateway
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  session:
+    redis:
+      namespace: course:gateway
+
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8085/realms/course
+        registration:
+          keycloak:
+            provider: keycloak
+            client-id: course-bff
+            client-secret: course-bff-secret
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope: openid,profile,email
+
+  cloud:
+    gateway:
+      httpclient:
+        connect-timeout: 500
+        response-timeout: 3s
+      routes:
+        # Белый список: наружу публикуем только API профилей и жалоб из chat-rest
+        - id: chat-rest
+          uri: http://localhost:8089
+          predicates:
+            - Path=/api/profiles,/api/profiles/**,/api/reports,/api/reports/**
+          filters:
+            - TokenRelay=
+            - RemoveRequestHeader=Cookie
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

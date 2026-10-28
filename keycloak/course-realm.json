@@ -11,6 +11,12 @@
       },
       {
         "name": "operator"
+      },
+      {
+        "name": "user"
+      },
+      {
+        "name": "admin"
       }
     ]
   },
@@ -95,6 +101,46 @@
           }
         }
       ]
+    },
+    {
+      "clientId": "course-bff",
+      "name": "AnonimChat Web BFF",
+      "protocol": "openid-connect",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "course-bff-secret",
+      "publicClient": false,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:8088/login/oauth2/code/keycloak"
+      ],
+      "webOrigins": [
+        "http://localhost:8088"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost:8088/"
+      },
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "profile",
+        "roles",
+        "email"
+      ],
+      "protocolMappers": [
+        {
+          "name": "chat-rest-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "chat-rest",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
     }
   ],
   "scopeMappings": [
@@ -140,6 +186,42 @@
       "serviceAccountClientId": "course-other-client",
       "realmRoles": [
         "service"
+      ]
+    },
+    {
+      "username": "user",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "User",
+      "lastName": "Anon",
+      "email": "user@anonimchat.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "user",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "user"
+      ]
+    },
+    {
+      "username": "admin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Admin",
+      "lastName": "Anon",
+      "email": "admin@anonimchat.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "admin"
       ]
     }
   ]

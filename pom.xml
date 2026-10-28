@@ -29,5 +29,6 @@
         <module>chat-grpc-enrichment-client</module>
         <module>chat-notification-service</module>
         <module>chat-matchmaker</module>
+        <module>chat-gateway</module>
     </modules>
 </project>

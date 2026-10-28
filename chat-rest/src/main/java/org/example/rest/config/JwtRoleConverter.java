@@ -22,7 +22,7 @@ public class JwtRoleConverter implements Converter<Jwt, Collection<GrantedAuthor
 
         if (claim instanceof Map<?, ?> realm && realm.get("roles") instanceof Collection<?> roles) {
             for (Object value : roles) {
-                if (value instanceof String role && Set.of("service", "operator").contains(role)) {
+                if (value instanceof String role && Set.of("service", "operator", "user", "admin").contains(role)) {
                     result.add(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase(Locale.ROOT)));
                 }
             }

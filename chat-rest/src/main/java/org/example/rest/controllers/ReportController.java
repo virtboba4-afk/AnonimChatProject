@@ -30,10 +30,12 @@ public class ReportController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public List<ReportResponse> getAllReports() {
         return reportService.getAllReports();
     }
     @PatchMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
     public void updateStatus(@PathVariable UUID id, @RequestParam String status) {
         reportService.updateReportStatus(id, status);
     }
