@@ -4,6 +4,7 @@ import org.example.audit.model.AuditEntry;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component
@@ -16,5 +17,11 @@ public class AuditStorage {
 
     public List<AuditEntry> findAll() {
         return logs;
+    }
+
+    public List<AuditEntry> findByProfileId(UUID profileId) {
+        return logs.stream()
+                .filter(entry -> profileId.equals(entry.profileId()))
+                .toList();
     }
 }

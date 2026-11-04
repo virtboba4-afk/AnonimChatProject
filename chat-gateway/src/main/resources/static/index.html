@@ -21,6 +21,7 @@
 <div id="authed" hidden>
     <button onclick="call('GET', '/api/profiles')">Профили</button>
     <button onclick="call('POST', '/api/profiles', {nickname: 'Anon', age: 20, preferredLanguage: 'en'})">Создать профиль</button>
+    <button onclick="call('GET', '/api/profiles/' + encodeURIComponent(prompt('ID профиля')) + '/activity')">Активность профиля</button>
     <button onclick="call('GET', '/api/reports')">Жалобы (admin)</button>
     <button onclick="call('GET', '/bff/me')">/bff/me</button>
     <form id="logout" method="post" action="/logout" style="display:inline">
@@ -48,7 +49,7 @@
         const started = performance.now();
         const r = await fetch(url, {method, headers, credentials: 'same-origin', body: body && JSON.stringify(body)});
         const text = await r.text();
-        out.textContent = `${method} ${url} -> ${r.status} (${Math.round(performance.now() - started)} ms)\n\n${text}`;
+        out.textContent = `${method} ${url} -> ${r.status} (${Math.round(performance.now() - started)} ms)\nX-Request-ID: ${r.headers.get('X-Request-ID')}\n\n${text}`;
     }
 
     (async () => {

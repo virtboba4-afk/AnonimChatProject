@@ -1,0 +1,462 @@
+{
+  "uid": "chat-golden-signals",
+  "title": "Chat Golden Signals",
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": true,
+  "refresh": "5s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Нагрузка, запросов/с",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum(rate(http_server_requests_seconds_count{job=\"chat-rest\",method=\"GET\",uri=\"/api/profiles/{id}/activity\",status=~\"2..|5..\"}[1m]))",
+          "legendFormat": "chat-rest",
+          "refId": "A",
+          "exemplar": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum(rate(http_server_requests_seconds_count{job=\"chat-audit\",method=\"GET\",uri=\"/internal/audit/{profileId}\",status=~\"2..|5..\"}[1m]))",
+          "legendFormat": "chat-audit",
+          "refId": "B",
+          "exemplar": false
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Доля 5xx",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "custom": {
+            "showPoints": "never",
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 0.2
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "chat:activity_error_ratio:rate1m",
+          "legendFormat": "chat-rest",
+          "refId": "A",
+          "exemplar": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "(sum(rate(http_server_requests_seconds_count{job=\"chat-audit\",method=\"GET\",uri=\"/internal/audit/{profileId}\",status=~\"5..\"}[1m])) or (0 * sum(rate(http_server_requests_seconds_count{job=\"chat-audit\",method=\"GET\",uri=\"/internal/audit/{profileId}\"}[1m])))) / sum(rate(http_server_requests_seconds_count{job=\"chat-audit\",method=\"GET\",uri=\"/internal/audit/{profileId}\"}[1m]))",
+          "legendFormat": "chat-audit",
+          "refId": "B",
+          "exemplar": false
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Задержка p95, только статус 200",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "showPoints": "never",
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 0.5
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{job=\"chat-rest\",method=\"GET\",uri=\"/api/profiles/{id}/activity\",status=\"200\"}[1m])))",
+          "legendFormat": "chat-rest",
+          "refId": "A",
+          "exemplar": true
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{job=\"chat-audit\",method=\"GET\",uri=\"/internal/audit/{profileId}\",status=\"200\"}[1m])))",
+          "legendFormat": "chat-audit",
+          "refId": "B",
+          "exemplar": true
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "SLI: 200 быстрее 500 мс, окно 5 минут",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "custom": {
+            "showPoints": "never",
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 0.995
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "chat:activity_good_ratio:rate5m",
+          "legendFormat": "SLI",
+          "refId": "A",
+          "exemplar": false
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Скорость расхода бюджета ошибок (SLO 99,5 %)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 16
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "(1 - chat:activity_good_ratio:rate5m) / 0.005",
+          "legendFormat": "burn rate",
+          "refId": "A",
+          "exemplar": false
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Прикладной счётчик audit.activity.requests",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 16
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum by (result) (rate(audit_activity_requests_total[1m]))",
+          "legendFormat": "{{result}}",
+          "refId": "A",
+          "exemplar": false
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Насыщение: куча JVM и активные операции",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 16
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum by (job) (jvm_memory_used_bytes{area=\"heap\",job=~\"chat-gateway|chat-rest|chat-audit\"}) / sum by (job) (jvm_memory_max_bytes{area=\"heap\",job=~\"chat-gateway|chat-rest|chat-audit\"})",
+          "legendFormat": "heap {{job}}",
+          "refId": "A",
+          "exemplar": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "audit_activity_active",
+          "legendFormat": "active chat-audit",
+          "refId": "B",
+          "exemplar": false
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Логи с outcome=failure",
+      "type": "logs",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "expr": "{job=\"course-apps\"} | json | outcome=\"failure\"",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Runbook",
+      "type": "text",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "## Runbook: деградация активности профиля\n\nСимптом: `ChatActivityHighErrorRatio` или падение панели SLI.\n\n1. По панелям ниже определите тип деградации: рост 5xx или рост p95 при статусе 200.\n2. Сравните `chat-rest` и `chat-audit`. Если 5xx есть в обоих, причина ниже по цепочке. Если только в `chat-rest`, проверьте токен Keycloak и сеть до `chat-audit`.\n3. В Explore / Loki: `{job=\"course-apps\"} | json | outcome=\"failure\"`. Возьмите `requestId` и `traceId`.\n4. Откройте трассу в Tempo по `traceId` и найдите спан с ошибкой или основной задержкой.\n5. Проверьте режим: `scripts/set-diagnostic-mode.ps1 -Mode NORMAL` снимает учебный сбой. Для настоящего сбоя смотрите логи `chat-audit` и `/readyz`.\n6. Подтвердите восстановление: доля 5xx равна 0, SLI растёт, алерт перешёл в resolved.\n\nНе перезапускайте сервисы вслепую: перезапуск стирает состояние и не устраняет причину."
+      }
+    }
+  ]
+}

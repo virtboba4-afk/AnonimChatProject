@@ -1,0 +1,55 @@
+groups:
+  - name: chat-activity-recording
+    interval: 5s
+    rules:
+      - record: chat:activity_requests:rate1m
+        expr: sum(rate(http_server_requests_seconds_count{job="chat-rest",method="GET",uri="/api/profiles/{id}/activity",status=~"2..|5.."}[1m]))
+
+      - record: chat:activity_requests:increase1m
+        expr: sum(increase(http_server_requests_seconds_count{job="chat-rest",method="GET",uri="/api/profiles/{id}/activity",status=~"2..|5.."}[1m]))
+
+      - record: chat:activity_error_ratio:rate1m
+        expr: |
+          (
+            sum(rate(http_server_requests_seconds_count{job="chat-rest",method="GET",uri="/api/profiles/{id}/activity",status=~"5.."}[1m]))
+            or
+            (0 * chat:activity_requests:rate1m)
+          )
+          /
+          chat:activity_requests:rate1m
+
+      - record: chat:activity_good_ratio:rate5m
+        expr: |
+          (
+            sum(rate(http_server_requests_seconds_bucket{job="chat-rest",method="GET",uri="/api/profiles/{id}/activity",status="200",le="0.5"}[5m]))
+            or
+            (0 * sum(rate(http_server_requests_seconds_count{job="chat-rest",method="GET",uri="/api/profiles/{id}/activity",status=~"2..|5.."}[5m])))
+          )
+          /
+          sum(rate(http_server_requests_seconds_count{job="chat-rest",method="GET",uri="/api/profiles/{id}/activity",status=~"2..|5.."}[5m]))
+
+  - name: chat-activity-alerts
+    rules:
+      - alert: ChatActivityHighErrorRatio
+        expr: chat:activity_error_ratio:rate1m > 0.2 and chat:activity_requests:increase1m >= 10
+        for: 20s
+        labels:
+          job: chat-rest
+          severity: warning
+          team: course
+        annotations:
+          summary: "Доля 5xx активности профиля выше 20 процентов"
+          description: "Окно 1 минута, не менее 10 запросов, выдержка 20 секунд."
+          dashboard_url: "http://localhost:3000/d/chat-golden-signals"
+          runbook_url: "http://localhost:3000/d/chat-golden-signals?viewPanel=9"
+
+      - alert: ChatScrapeTargetDown
+        expr: up{job=~"chat-gateway|chat-rest|chat-audit"} == 0
+        for: 30s
+        labels:
+          severity: warning
+          team: course
+        annotations:
+          summary: "Prometheus не может опросить {{ $labels.job }}"
+          description: "Проверьте процесс, порт management и доступность host.docker.internal."
+          runbook_url: "http://localhost:3000/d/chat-golden-signals?viewPanel=9"

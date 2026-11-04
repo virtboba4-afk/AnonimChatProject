@@ -1,0 +1,19 @@
+local.file_match "apps" {
+  path_targets = [
+    {__path__ = "/logs/chat-gateway.log", job = "course-apps", service = "chat-gateway"},
+    {__path__ = "/logs/chat-rest.log", job = "course-apps", service = "chat-rest"},
+    {__path__ = "/logs/chat-audit.log", job = "course-apps", service = "chat-audit"},
+  ]
+  sync_period = "5s"
+}
+
+loki.source.file "apps" {
+  targets    = local.file_match.apps.targets
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

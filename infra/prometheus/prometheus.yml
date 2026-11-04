@@ -1,0 +1,30 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+rule_files:
+  - alerts.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
+scrape_configs:
+  - job_name: chat-gateway
+    metrics_path: /actuator/prometheus
+    scrape_protocols: [OpenMetricsText1.0.0, PrometheusText0.0.4]
+    static_configs:
+      - targets: ["host.docker.internal:9088"]
+
+  - job_name: chat-rest
+    metrics_path: /actuator/prometheus
+    scrape_protocols: [OpenMetricsText1.0.0, PrometheusText0.0.4]
+    static_configs:
+      - targets: ["host.docker.internal:9089"]
+
+  - job_name: chat-audit
+    metrics_path: /actuator/prometheus
+    scrape_protocols: [OpenMetricsText1.0.0, PrometheusText0.0.4]
+    static_configs:
+      - targets: ["host.docker.internal:9081"]

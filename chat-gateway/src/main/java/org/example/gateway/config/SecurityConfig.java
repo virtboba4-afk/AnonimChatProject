@@ -1,7 +1,9 @@
 package org.example.gateway.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -11,6 +13,9 @@ import org.springframework.security.oauth2.client.web.server.ServerOAuth2Authori
 import org.springframework.security.oauth2.client.web.server.WebSessionServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.csrf.WebSessionServerCsrfTokenRepository;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult;
+
+import java.net.InetSocketAddress;
 
 @Configuration
 @EnableWebFluxSecurity
@@ -23,6 +28,23 @@ public class SecurityConfig {
     }
 
     @Bean
+    @Order(1)
+    SecurityWebFilterChain managementChain(ServerHttpSecurity http,
+                                           @Value("${management.server.port}") int managementPort) {
+        return http
+                .securityMatcher(exchange -> {
+                    InetSocketAddress local = exchange.getRequest().getLocalAddress();
+                    return local != null && local.getPort() == managementPort
+                            ? MatchResult.match()
+                            : MatchResult.notMatch();
+                })
+                .authorizeExchange(auth -> auth.anyExchange().permitAll())
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .build();
+    }
+
+    @Bean
+    @Order(2)
     SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http,
                                                   ReactiveClientRegistrationRepository clients) {
         OidcClientInitiatedServerLogoutSuccessHandler logoutSuccess =
@@ -32,7 +54,7 @@ public class SecurityConfig {
         return http
                 .authorizeExchange(auth -> auth
                         .pathMatchers("/", "/index.html", "/favicon.ico", "/bff/csrf", "/bff/me",
-                                "/oauth2/**", "/login/**", "/actuator/health").permitAll()
+                                "/oauth2/**", "/login/**", "/livez", "/readyz").permitAll()
                         .anyExchange().authenticated())
                 .oauth2Login(Customizer.withDefaults())
                 .oauth2Client(Customizer.withDefaults())

@@ -37,6 +37,16 @@
       ],
       "protocolMappers": [
         {
+          "name": "chat-audit-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "chat-audit",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        },
+        {
           "name": "api-audience",
           "protocol": "openid-connect",
           "protocolMapper": "oidc-audience-mapper",
@@ -63,6 +73,16 @@
         "roles"
       ],
       "protocolMappers": [
+        {
+          "name": "chat-audit-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "chat-audit",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        },
         {
           "name": "api-audience",
           "protocol": "openid-connect",

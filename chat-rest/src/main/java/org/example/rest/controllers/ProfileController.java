@@ -2,6 +2,8 @@ package org.example.rest.controllers;
 
 import org.example.contract.endpoints.ProfileApi;
 import org.example.rest.assemblers.ProfileModelAssembler;
+import org.example.rest.client.ActivityEntry;
+import org.example.rest.service.ProfileActivityService;
 import org.example.contract.dto.*;
 import org.example.rest.service.ProfileService;
 import org.springframework.hateoas.EntityModel;
@@ -21,10 +23,13 @@ public class ProfileController implements ProfileApi {
 
     private final ProfileService profileService;
     private final ProfileModelAssembler assembler;
+    private final ProfileActivityService activityService;
 
-    public ProfileController(ProfileService profileService, ProfileModelAssembler assembler) {
+    public ProfileController(ProfileService profileService, ProfileModelAssembler assembler,
+                             ProfileActivityService activityService) {
         this.profileService = profileService;
         this.assembler = assembler;
+        this.activityService = activityService;
     }
 
     @Override
@@ -70,6 +75,12 @@ public class ProfileController implements ProfileApi {
                 paged.last()
         );
     }
+    @GetMapping("/{id}/activity")
+    @PreAuthorize("hasAnyRole('SERVICE', 'USER', 'ADMIN')")
+    public List<ActivityEntry> getActivity(@PathVariable UUID id) {
+        return activityService.activityOf(id);
+    }
+
     @PostMapping("/{id}/search")
     public ResponseEntity<String> startSearch(@PathVariable UUID id) {
         profileService.startSearch(id);
